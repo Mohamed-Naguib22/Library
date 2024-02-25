@@ -1,0 +1,22 @@
+﻿using Library.Domain.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace Library.Application.Dtos.GenreDto
+{
+    public class GetGenreDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string ImgUrl { get; set; }
+        [JsonIgnore]
+        public string? Message { get; set; }
+        [JsonIgnore]
+        public bool Succeeded { get; set; } = true;
+    }
+}
