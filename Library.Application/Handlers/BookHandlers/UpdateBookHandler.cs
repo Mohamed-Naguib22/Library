@@ -26,6 +26,9 @@ namespace Library.Application.Handlers.BookHandlers
         public async Task<GetBookDto> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.Books.GetByAsync(a => a.Id == request.BookId);
+            
+            if (book == null)
+                return new GetBookDto { Succeeded = false, Message = "This book is not found" };
 
             if (await _unitOfWork.Books.ExistsAsync(b => b.Title == request.BookDto.Title))
                 return new GetBookDto { Succeeded = false, Message = "This book is already added" };

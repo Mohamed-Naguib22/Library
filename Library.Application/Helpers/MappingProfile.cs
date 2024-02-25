@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Library.Application.Dtos.AuthModels;
 using Library.Application.Dtos.AuthorDtos;
 using Library.Application.Dtos.BookDtos;
 using Library.Application.Dtos.GenreDto;
@@ -16,6 +17,8 @@ namespace Library.Application.Helpers
         private readonly string _baseUrl = "https://localhost:7047/";
         public MappingProfile()
         {
+            CreateMap<RegisterModel, ApplicationUser>().ForMember(dest => dest.ImgUrl, opt => opt.MapFrom(src => "\\images\\Default_User_Image.png"));
+
             CreateMap<Author, GetAuthorDto>()
                 .ForMember(dest => dest.ImgUrl, opt => opt.MapFrom(src => _baseUrl + src.ImgUrl));
             CreateMap<AddAuthorDto, Author>();

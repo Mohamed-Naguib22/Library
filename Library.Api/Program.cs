@@ -1,10 +1,18 @@
 using Library.Application.Interfaces;
 using Library.Application.Services;
+using Library.Domain.Models;
+using Library.Infrastructure.Helpers;
+using Library.Infrastructure.Services;
 using Library.Persistence;
 using Library.Persistence.Data;
 using Library.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,15 +29,50 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>
+    (options => {
+        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+        options.SignIn.RequireConfirmedAccount = true;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
 var assemblies = Assembly.Load("Library.Application");
 builder.Services.AddAutoMapper(assemblies);
 builder.Services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies));
 builder.Services.AddCors();
 builder.Services.AddMemoryCache();
 
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+builder.Services.Configure<Sender>(builder.Configuration.GetSection("Sender"));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
 builder.Services.AddTransient(typeof(IImageService), typeof(ImageService));
+builder.Services.AddTransient(typeof(IAuthService), typeof(AuthService));
+builder.Services.AddTransient(typeof(IEmailSender), typeof(EmailSender));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
