@@ -31,10 +31,27 @@ namespace Library.Persistence.Data
 
             builder.Entity<BookGenre>()
                 .HasKey(bg => new { bg.BookId, bg.GenreId });
+
+            builder.Entity<CartItem>()
+                .HasKey(ci => new { ci.BookId, ci.CartId });
+
+            builder.Entity<OrderItem>()
+                .HasKey(oi => new { oi.BookId, oi.OrderId });
+            
+            builder.Entity<WishlistItem>()
+                .HasKey(wi => new { wi.BookId, wi.WishlistId });
         }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<BookGenre> BookGenres { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<WishlistItem> WishlistItems { get; set; }
+        public DbSet<SearchQuery> SearchQueries { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
     }
 }

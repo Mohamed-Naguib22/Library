@@ -36,6 +36,38 @@ namespace Library.Api.Controllers
             return result.Succeeded ? Ok(result) : NotFound(result.Message);
         }
 
+        [HttpGet("genre-books/{genreId}")]
+        public async Task<IActionResult> GetGenreBooksAsync(int genreId)
+        {
+            var query = new GetGenreBooksQuery(genreId);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchAsync([FromQuery] string searchQuery)
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            var query = new SearchForBookQuery(searchQuery, refreshToken);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpPost("filter")]
+        public async Task<IActionResult> FilterBooksAsync([FromBody] BookFilterDto bookFilterDto)
+        {
+            var query = new FilterBooksQuery(bookFilterDto);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
         [HttpPost("add")]
         public async Task<IActionResult> AddBookAsync([FromForm] AddBookDto bookDto)
         {

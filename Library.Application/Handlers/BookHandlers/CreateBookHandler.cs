@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Handlers.BookHandlers
 {
-    public class CreateBookHandler : IRequestHandler<CreateBookCommand, GetBookDto>
+    public class CreateBookHandler : IRequestHandler<CreateBookCommand, ReturnBookDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -25,13 +25,13 @@ namespace Library.Application.Handlers.BookHandlers
             _mapper = mapper;
             _imageService = imageService;
         }
-        public async Task<GetBookDto> Handle(CreateBookCommand request, CancellationToken cancellationToken)
+        public async Task<ReturnBookDto> Handle(CreateBookCommand request, CancellationToken cancellationToken)
         {
             if (await _unitOfWork.Books.ExistsAsync(b => b.Title == request.BookDto.Title))
-                return new GetBookDto { Succeeded = false, Message = "This book is already added" };
+                return new ReturnBookDto { Succeeded = false, Message = "This book is already added" };
 
             if (await _unitOfWork.Books.ExistsAsync(b => b.ISBN == request.BookDto.ISBN))
-                return new GetBookDto { Succeeded = false, Message = "This book is already added" };
+                return new ReturnBookDto { Succeeded = false, Message = "This book is already added" };
 
             var book = _mapper.Map<Book>(request.BookDto);
             book.BookGenres = request.BookDto.BookGenreId.Select(ids => new BookGenre { GenreId = ids }).ToList();
@@ -39,7 +39,7 @@ namespace Library.Application.Handlers.BookHandlers
             await _unitOfWork.Books.AddAsync(book);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<GetBookDto>(book);
+            return _mapper.Map<ReturnBookDto>(book);
         }
     }
 }

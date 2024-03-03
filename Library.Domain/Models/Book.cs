@@ -36,5 +36,6 @@ namespace Library.Domain.Models
         public int AuthorId { get; set; }
         public Author Author { get; set; }
         public IEnumerable<BookGenre> BookGenres { get; set; }
+        public IEnumerable<Rating> Ratings { get; set; }
     }
 }

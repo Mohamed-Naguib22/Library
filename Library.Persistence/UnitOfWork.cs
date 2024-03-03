@@ -1,4 +1,5 @@
 ﻿using Library.Application.Interfaces;
+using Library.Application.Interfaces.Repositories;
 using Library.Domain.Models;
 using Library.Persistence.Data;
 using Library.Persistence.Repositories;
@@ -14,14 +15,30 @@ namespace Library.Persistence
     {
         private readonly ApplicationDbContext _context;
         public IBookRepository Books { get; private set; }
-        public IBaseRepository<Author> Authors { get; private set; }
+        public IAuthorRepository Authors { get; private set; }
         public IBaseRepository<Genre> Genres { get; private set; }
+        public ICartRepository Carts { get; private set; }
+        public IBaseRepository<CartItem> CartItems { get; private set; }
+        public IBaseRepository<Order> Orders { get; private set; }
+        public IBaseRepository<OrderItem> OrderItems { get; private set; }
+        public IWishlistRepository Wishlists { get; private set; }
+        public IBaseRepository<WishlistItem> WishlistItems { get; private set; }
+        public IBaseRepository<SearchQuery> SearchQueries { get; private set; }
+        public IBaseRepository<Rating> Ratings { get; private set; }
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            Authors = new BaseRepository<Author>(_context);
+            Authors = new AuthorRepository(_context);
             Genres = new BaseRepository<Genre>(_context);
             Books = new BookRepository(_context);
+            Carts = new CartRepository(_context);
+            CartItems = new BaseRepository<CartItem>(_context);
+            Orders = new BaseRepository<Order>(_context);
+            OrderItems = new BaseRepository<OrderItem>(_context);
+            Wishlists = new WishlistRepository(_context);
+            WishlistItems = new BaseRepository<WishlistItem>(_context);
+            SearchQueries = new BaseRepository<SearchQuery>(_context);
+            Ratings = new BaseRepository<Rating>(_context);
         }
         public async Task<int> CompleteAsync()
         {

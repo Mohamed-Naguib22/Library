@@ -1,4 +1,4 @@
-﻿using Library.Application.Interfaces;
+﻿using Library.Application.Interfaces.Repositories;
 using Library.Domain.Const;
 using Library.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +22,16 @@ namespace Library.Persistence.Repositories
         public async Task<T> GetByAsync(Expression<Func<T, bool>> criteria)
         {
             IQueryable<T> query = _context.Set<T>();
+
             return await query.FirstOrDefaultAsync(criteria);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Ascending)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> criteria = null, Expression < Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Ascending)
         {
             IQueryable<T> query = _context.Set<T>();
+            
+            if (criteria != null)
+                query.Where(criteria);
 
             if (orderBy != null)
             {

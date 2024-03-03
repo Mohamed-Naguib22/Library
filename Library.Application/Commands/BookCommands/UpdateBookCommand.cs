@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Commands.BookCommands
 {
-    public class UpdateBookCommand : IRequest<GetBookDto>
+    public class UpdateBookCommand : IRequest<ReturnBookDto>
     {
         public int BookId { get; }
         public UpdateBookDto BookDto { get; }

@@ -22,7 +22,7 @@ namespace Library.Application.Handlers.AuthorHandlers
         }
         public async Task<GetAuthorDto> Handle(GetAuthorQuery request, CancellationToken cancellationToken)
         {
-            var author = await _unitOfWork.Authors.GetByAsync(a => a.Id == request.AuthorId);
+            var author = await _unitOfWork.Authors.GetAuthorByIdAsync(request.AuthorId);
 
             if (author == null)
                 return new GetAuthorDto { Succeeded = false, Message = "Author not found" };

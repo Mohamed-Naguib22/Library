@@ -24,7 +24,7 @@ namespace Library.Application.Handlers.AuthorHandlers
 
         public async Task<IEnumerable<GetAuthorDto>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
-            var authors = await _unitOfWork.Authors.GetAllAsync(a => a.Name, OrderBy.Ascending);
+            var authors = await _unitOfWork.Authors.GetAllAuthorsAsync();
             return _mapper.Map<IEnumerable<GetAuthorDto>>(authors);
         }
     }

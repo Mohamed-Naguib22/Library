@@ -1,4 +1,6 @@
+using Library.Application.Dtos.BookDtos;
 using Library.Application.Interfaces;
+using Library.Application.Interfaces.Repositories;
 using Library.Application.Services;
 using Library.Domain.Models;
 using Library.Infrastructure.Helpers;
@@ -6,6 +8,7 @@ using Library.Infrastructure.Services;
 using Library.Persistence;
 using Library.Persistence.Data;
 using Library.Persistence.Repositories;
+using Library.Persistence.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -21,7 +24,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
     });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -71,8 +74,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
 builder.Services.AddTransient(typeof(IImageService), typeof(ImageService));
-builder.Services.AddTransient(typeof(IAuthService), typeof(AuthService));
+builder.Services.AddTransient(typeof(IIdentityService), typeof(IdentityService));
+builder.Services.AddTransient(typeof(IJwtService), typeof(JwtService));
+builder.Services.AddTransient(typeof(IPaymentService), typeof(PaymentService));
 builder.Services.AddTransient(typeof(IEmailSender), typeof(EmailSender));
+builder.Services.AddTransient(typeof(ICacheService), typeof(MemoryCacheService));
+builder.Services.AddTransient(typeof(IFilterFactory<Book, BookFilterDto>), typeof(BookFilterFactory));
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

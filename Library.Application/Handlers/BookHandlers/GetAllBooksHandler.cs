@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Handlers.BookHandlers
 {
-    public class GetAllBooksHandler : IRequestHandler<GetAllBooksQuery, IEnumerable<GetAllBooksDto>>
+    public class GetAllBooksHandler : IRequestHandler<GetAllBooksQuery, IEnumerable<GetBooksDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -24,10 +24,10 @@ namespace Library.Application.Handlers.BookHandlers
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<GetAllBooksDto>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetBooksDto>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
             var books = await _unitOfWork.Books.GetAllBooksAsync();
-            return _mapper.Map<IEnumerable<GetAllBooksDto>>(books);
+            return _mapper.Map<IEnumerable<GetBooksDto>>(books);
         }
     }
 }

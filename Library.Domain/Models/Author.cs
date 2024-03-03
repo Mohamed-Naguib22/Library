@@ -17,5 +17,6 @@ namespace Library.Domain.Models
         [MaxLength(1024)]
         public string Biography { get; set; }
         public string ImgUrl { get; set; }
+        public IEnumerable<Book> Books { get; set; }
     }
 }

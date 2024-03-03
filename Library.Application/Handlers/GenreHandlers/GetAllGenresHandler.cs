@@ -26,7 +26,7 @@ namespace Library.Application.Handlers.GenreHandlers
 
         public async Task<IEnumerable<GetGenreDto>> Handle(GetAllGenresQuery request, CancellationToken cancellationToken)
         {
-            var genres = await _unitOfWork.Genres.GetAllAsync(a => a.Name, OrderBy.Ascending);
+            var genres = await _unitOfWork.Genres.GetAllAsync(null, a => a.Name, OrderBy.Ascending);
             return _mapper.Map<IEnumerable<GetGenreDto>>(genres);
         }
     }

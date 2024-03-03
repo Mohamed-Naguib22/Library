@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Queries.BookQueries
 {
-    public class GetBookQuery : IRequest<GetBookDto>
+    public class GetBookQuery : IRequest<ReturnBookDto>
     {
         public int BookId { get; }
         public GetBookQuery(int bookId)

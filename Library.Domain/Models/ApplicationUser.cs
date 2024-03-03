@@ -16,5 +16,8 @@ namespace Library.Domain.Models
         public string LastName { get; set; }
         public string? ImgUrl { get; set; }
         public List<RefreshToken>? RefreshTokens { get; set; }
+        public Cart Cart { get; set; }
+        public Wishlist Wishlist { get; set; }
+        public IEnumerable<Rating> Ratings { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Handlers.BookHandlers
 {
-    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, GetBookDto>
+    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, ReturnBookDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,18 +23,18 @@ namespace Library.Application.Handlers.BookHandlers
             _mapper = mapper;
             _imageService = imageService;
         }
-        public async Task<GetBookDto> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task<ReturnBookDto> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.Books.GetByAsync(a => a.Id == request.BookId);
             
             if (book == null)
-                return new GetBookDto { Succeeded = false, Message = "This book is not found" };
+                return new ReturnBookDto { Succeeded = false, Message = "This book is not found" };
 
             if (await _unitOfWork.Books.ExistsAsync(b => b.Title == request.BookDto.Title))
-                return new GetBookDto { Succeeded = false, Message = "This book is already added" };
+                return new ReturnBookDto { Succeeded = false, Message = "This book is already added" };
 
             if (await _unitOfWork.Books.ExistsAsync(b => b.ISBN == request.BookDto.ISBN))
-                return new GetBookDto { Succeeded = false, Message = "This book is already added" };
+                return new ReturnBookDto { Succeeded = false, Message = "This book is already added" };
 
             book.Title = request.BookDto.Title ?? book.Title;
             book.ISBN = request.BookDto.ISBN ?? book.ISBN;
@@ -53,7 +53,7 @@ namespace Library.Application.Handlers.BookHandlers
             _unitOfWork.Books.Update(book);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<GetBookDto>(book);
+            return _mapper.Map<ReturnBookDto>(book);
         }
     }
 }

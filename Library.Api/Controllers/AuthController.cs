@@ -1,6 +1,8 @@
-﻿using Library.Application.Interfaces;
-using Library.Application.Dtos.AuthModels;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Library.Application.Dtos.AuthDtos;
+using MediatR;
+using Library.Application.Commands.AuthCommands;
+using Library.Application.Queries.AuthQueries;
 
 namespace Library.Api.Controllers
 {
@@ -8,78 +10,53 @@ namespace Library.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IMediator _mediator;
+        public AuthController(IMediator mediator)
         {
-            _authService = authService;
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAysnc([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAysnc([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.RegisterAysnc(model);
+            var command = new RegisterCommand(registerDto);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Message);
-
-            return Ok("يرجى التحقق من بريدك الإلكتروني للتحقق من حسابك");
-        }
-
-        [HttpPost("verifyAccout")]
-        public async Task<IActionResult> VerifyAccountAsync([FromBody] VerifyAccountModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _authService.VerifyAccountAsync(model);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Message);
+            var result = await _mediator.Send(command);
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
-            return Ok(result);
+            return result.Succeeded ? Ok(result) : BadRequest(result.Message);
+            //return result.Succeeded ? Ok("Please check your email to verify your account") : BadRequest(result.Message);
         }
 
-        [HttpPost("forgetPassword")]
-        public async Task<IActionResult> ForgetPasswordAsync([FromBody] ForgetPasswordModel model)
+        [HttpPost("verify-accout")]
+        public async Task<IActionResult> VerifyAccountAsync([FromBody] VerifyAccountDto verifyAccountDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.ForgetPasswordAsync(model);
+            var query = new VerifyAccountQuery(verifyAccountDto);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Message);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
-        }
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
-        [HttpPost("resetPassword")]
-        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _authService.ResetPasswordAsync(model);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Message);
-
-            return Ok("تمت إعادة تعيين كلمة المرور بنجاح");
+            return result.Succeeded ? Ok(result) : BadRequest(result.Message);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] TokenrRequestModel model)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.LoginAsync(model);
+            var query = new LoginQuery(loginDto);
 
+            var result = await _mediator.Send(query);
+            
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
@@ -97,44 +74,35 @@ namespace Library.Api.Controllers
             return Ok("Logged out successfully");
         }
 
-        [HttpPut("changePassword")]
-        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordModel model)
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto changePasswordDto)
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            if (userId == null)
-                return BadRequest("Invalid token");
+            var refreshToken = GetRefreshTokenFromCookie();
 
-            var result = await _authService.ChangePasswordAsync(userId, model);
+            if (string.IsNullOrEmpty(refreshToken))
+                return BadRequest("Token is required!");
 
-            if (!result.IsAuthenticated)
-                return BadRequest(result.Message);
+            var command = new ChangePasswordCommand(changePasswordDto, refreshToken);
+
+            var result = await _mediator.Send(command);
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
-            return Ok(result);
+            return result.Succeeded ? Ok(result) : BadRequest(result.Message);
         }
 
-        [HttpPost("addRole")]
-        public async Task<IActionResult> AddRoleAsync([FromBody] AddRoleModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _authService.AddRoleAysnc(model);
-
-            if (!string.IsNullOrEmpty(result))
-                return BadRequest(result);
-
-            return Ok(model);
-        }
-
-        [HttpGet("refreshToken")]
+        [HttpGet("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = GetRefreshTokenFromCookie();
 
-            var result = await _authService.RefreshTokenAsync(refreshToken);
+            if (string.IsNullOrEmpty(refreshToken))
+                return BadRequest("Token is required!");
 
+            var command = new RefreshTokenCommand(refreshToken);
+
+            var result = await _mediator.Send(command);
+            
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
@@ -143,20 +111,19 @@ namespace Library.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost("revokeToken")]
-        public async Task<IActionResult> RevokeTokenAsync([FromBody] RevokeToken model)
+        [HttpPost("revoke-token")]
+        public async Task<IActionResult> RevokeTokenAsync([FromBody] RevokeDto model)
         {
             var refreshToken = model.Token ?? Request.Cookies["refreshToken"];
 
             if (string.IsNullOrEmpty(refreshToken))
                 return BadRequest("Token is required!");
 
-            var result = await _authService.RevokeTokenAsync(refreshToken);
+            var command = new RevokeTokenCommand(refreshToken);
 
-            if (!result)
-                return BadRequest("Token is invalid!");
+            var result = await _mediator.Send(command);
 
-            return Ok();
+            return result ? Ok("Token revoked successfully") : BadRequest("Token is invalid!");
         }
 
         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
@@ -171,6 +138,10 @@ namespace Library.Api.Controllers
             };
 
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
+        private string GetRefreshTokenFromCookie()
+        {
+            return Request.Cookies["refreshToken"];
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Library.Application.Dtos.AuthorDtos;
 using Library.Application.Dtos.BookDtos;
 using Library.Application.Interfaces;
-using Library.Application.Queries.AuthorQueries;
 using Library.Application.Queries.BookQueries;
 using MediatR;
 using System;
@@ -13,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Handlers.BookHandlers
 {
-    public class GetBookHandler : IRequestHandler<GetBookQuery, GetBookDto>
+    public class GetBookHandler : IRequestHandler<GetBookQuery, ReturnBookDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -22,17 +20,20 @@ namespace Library.Application.Handlers.BookHandlers
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<GetBookDto> Handle(GetBookQuery request, CancellationToken cancellationToken)
+        public async Task<ReturnBookDto> Handle(GetBookQuery request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.Books.GetBookById(request.BookId);
 
             if (book == null)
-                return new GetBookDto { Succeeded = false, Message = "Book is not found" };
+                return new ReturnBookDto { Succeeded = false, Message = "Book is not found" };
 
-            var bookDto = _mapper.Map<GetBookDto>(book);
+            var bookDto = _mapper.Map<ReturnBookDto>(book);
             bookDto.Author = book.Author.Name;
             bookDto.BookGenres = book.BookGenres.Select(bg => bg.Genre.Name);
             
+            if (book.Ratings.Any())
+                bookDto.Rating = book.Ratings.Average(r => r.Rate);
+
             return bookDto;
         }
     }
