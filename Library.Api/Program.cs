@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -45,6 +46,8 @@ builder.Services.AddAutoMapper(assemblies);
 builder.Services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies));
 builder.Services.AddCors();
 builder.Services.AddMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddDistributedMemoryCache();
 
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<Sender>(builder.Configuration.GetSection("Sender"));
@@ -98,6 +101,8 @@ app.UseHttpsRedirection();
 app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 app.UseAuthorization();
 app.UseAuthentication();

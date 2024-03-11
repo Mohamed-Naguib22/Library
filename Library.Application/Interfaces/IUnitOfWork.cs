@@ -15,6 +15,8 @@ namespace Library.Application.Interfaces
         IBaseRepository<Genre> Genres { get; }
         ICartRepository Carts { get; }
         IBaseRepository<CartItem> CartItems { get; }
+        IOrderRepository Orders { get; }
+        IBaseRepository<OrderItem> OrderItems { get; }
         IWishlistRepository Wishlists { get; }
         IBaseRepository<WishlistItem> WishlistItems { get; }
         IBaseRepository<SearchQuery> SearchQueries { get; }

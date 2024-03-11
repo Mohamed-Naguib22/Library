@@ -8,7 +8,11 @@ namespace Library.Domain.Enums
 {
     public enum OrderStatus
     {
-        shipped,
-        notshipped
+        Pending,
+        Processing,
+        Shipped,
+        Delivered,
+        Cancelled,
+        Refunded
     }
 }

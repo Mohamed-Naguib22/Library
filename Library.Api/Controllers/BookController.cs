@@ -61,6 +61,9 @@ namespace Library.Api.Controllers
         [HttpPost("filter")]
         public async Task<IActionResult> FilterBooksAsync([FromBody] BookFilterDto bookFilterDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var query = new FilterBooksQuery(bookFilterDto);
 
             var result = await _mediator.Send(query);

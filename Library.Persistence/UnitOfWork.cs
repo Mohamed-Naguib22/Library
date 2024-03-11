@@ -19,7 +19,7 @@ namespace Library.Persistence
         public IBaseRepository<Genre> Genres { get; private set; }
         public ICartRepository Carts { get; private set; }
         public IBaseRepository<CartItem> CartItems { get; private set; }
-        public IBaseRepository<Order> Orders { get; private set; }
+        public IOrderRepository Orders { get; private set; }
         public IBaseRepository<OrderItem> OrderItems { get; private set; }
         public IWishlistRepository Wishlists { get; private set; }
         public IBaseRepository<WishlistItem> WishlistItems { get; private set; }
@@ -33,7 +33,7 @@ namespace Library.Persistence
             Books = new BookRepository(_context);
             Carts = new CartRepository(_context);
             CartItems = new BaseRepository<CartItem>(_context);
-            Orders = new BaseRepository<Order>(_context);
+            Orders = new OrderRepository(_context);
             OrderItems = new BaseRepository<OrderItem>(_context);
             Wishlists = new WishlistRepository(_context);
             WishlistItems = new BaseRepository<WishlistItem>(_context);

@@ -1,4 +1,5 @@
-﻿using Library.Application.Dtos.PaymentDtos;
+﻿using Library.Application.Dtos.OrderDtos;
+using Library.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,6 @@ namespace Library.Application.Interfaces
 {
     public interface IPaymentService
     {
+        public string Checkout(int orderId, ApplicationUser user, IEnumerable<OrderItemDto> orderItems);
     }
 }

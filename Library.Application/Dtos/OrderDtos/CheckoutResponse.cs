@@ -1,18 +1,15 @@
-﻿using Library.Domain.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Library.Application.Dtos.CartDtos
+namespace Library.Application.Dtos.OrderDtos
 {
-    public class GetCartDto
+    public class CheckoutResponse
     {
-        public IEnumerable<CartItemDto> CartItems { get; set; }
-        public decimal TotalCost { get; set; }
+        public string PaymentLink { get; set; }
         [JsonIgnore]
         public string? Message { get; set; }
         [JsonIgnore]

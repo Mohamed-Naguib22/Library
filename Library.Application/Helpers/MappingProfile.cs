@@ -4,6 +4,7 @@ using Library.Application.Dtos.AuthorDtos;
 using Library.Application.Dtos.BookDtos;
 using Library.Application.Dtos.CartDtos;
 using Library.Application.Dtos.GenreDto;
+using Library.Application.Dtos.OrderDtos;
 using Library.Application.Dtos.WishlistDtos;
 using Library.Domain.Models;
 using System;
@@ -57,7 +58,15 @@ namespace Library.Application.Helpers
             CreateMap<WishlistItem, WishlistItemDto>()
                 .ForMember(dest => dest.AddedOn, opt => opt.MapFrom(src => src.AddedOn.ToString("MMMM d, yyyy")))
                 .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title))
-                .ForMember(dest => dest.BookImageUrl, opt => opt.MapFrom(src => _baseUrl + src.Book.ImgUrl)); ;
+                .ForMember(dest => dest.BookImageUrl, opt => opt.MapFrom(src => _baseUrl + src.Book.ImgUrl));
+
+            CreateMap<Order, GetOrderDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.PlacedOn, opt => opt.MapFrom(src => src.PlacedOn.ToString("MMMM d, yyyy")));
+            CreateMap<OrderItem, GetOrderItemDto>()
+                .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title))
+                .ForMember(dest => dest.BookImageUrl, opt => opt.MapFrom(src => _baseUrl + src.Book.ImgUrl))
+                .ForMember(dest => dest.SubTotalPrice, opt => opt.MapFrom(src => src.Quantity * src.Book.Price));
         }
     }
 }
